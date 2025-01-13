@@ -2,14 +2,15 @@
   "api_key": "TU_API_KEY_AQUI",
   "api_secret": "TU_API_SECRET_AQUI",
   "strategy": {
-    "name": "NombreDeLaEstrategia",
+    "name": "MovingAverageStrategy",
     "parameters": {
-      "parametro1": 10,
-      "parametro2": 0.5
+      "short_window": 40,
+      "long_window": 100
     }
   },
   "trading": {
-    "symbol": "BTC/USD",
+    "symbol": "EURUSD",
+    "exchange": "OANDA",
     "timeframe": "1h",
     "risk_management": {
       "max_drawdown": 0.2,
@@ -19,7 +20,5 @@
   "logging": {
     "level": "INFO",
     "log_file": "trading_bot.log"
-  },
-  "short_window": 40,
-  "long_window": 100
+  }
 }
