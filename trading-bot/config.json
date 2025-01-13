@@ -1,0 +1,23 @@
+{
+  "api_key": "TU_API_KEY_AQUI",
+  "api_secret": "TU_API_SECRET_AQUI",
+  "strategy": {
+    "name": "NombreDeLaEstrategia",
+    "parameters": {
+      "parametro1": 10,
+      "parametro2": 0.5
+    }
+  },
+  "trading": {
+    "symbol": "BTC/USD",
+    "timeframe": "1h",
+    "risk_management": {
+      "max_drawdown": 0.2,
+      "position_size": 0.1
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "log_file": "trading_bot.log"
+  }
+}
