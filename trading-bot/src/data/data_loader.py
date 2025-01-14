@@ -8,12 +8,15 @@ finnhub_client = finnhub.Client(api_key=api_key)
 
 def load_data(symbol, interval, start_date, end_date):
     try:
+        print(f"Cargando datos para {symbol} desde {start_date} hasta {end_date} con intervalo {interval}")
+        
         # Convertir fechas a timestamps
         start_timestamp = int(pd.Timestamp(start_date).timestamp())
         end_timestamp = int(pd.Timestamp(end_date).timestamp())
 
         # Obtener datos históricos de Finnhub
         res = finnhub_client.stock_candles(symbol, interval, start_timestamp, end_timestamp)
+        print(f"Datos recibidos de Finnhub: {res}")
 
         # Convertir los datos a un DataFrame de pandas
         df = pd.DataFrame({

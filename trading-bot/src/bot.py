@@ -1,8 +1,8 @@
 import json
 import pandas as pd
-from strategies.base_strategy import MovingAverageStrategy
-from data.data_loader import load_data
-from utils.logger import Logger
+from .strategies.base_strategy import MovingAverageStrategy
+from .data.data_loader import load_data
+from .utils.logger import Logger
 
 class TradingBot:
     def __init__(self, config_path):
