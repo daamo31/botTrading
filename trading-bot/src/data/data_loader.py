@@ -1,26 +1,29 @@
-from tradingview_ta import TA_Handler, Interval, Exchange
+import finnhub
 import pandas as pd
 import datetime
 
-def load_data(symbol, exchange, interval, start_date, end_date):
-    try:
-        # Configurar el manejador de TradingView
-        handler = TA_Handler(
-            symbol=symbol,
-            screener="forex",  # Cambia esto según el tipo de mercado (e.g., "crypto", "stock")
-            exchange=exchange,
-            interval=interval
-        )
+# Configurar el cliente de Finnhub
+api_key = "TU_API_KEY_DE_FINNHUB"
+finnhub_client = finnhub.Client(api_key=api_key)
 
-        # Obtener datos históricos
-        analysis = handler.get_analysis()
-        data = analysis.indicators
+def load_data(symbol, interval, start_date, end_date):
+    try:
+        # Convertir fechas a timestamps
+        start_timestamp = int(pd.Timestamp(start_date).timestamp())
+        end_timestamp = int(pd.Timestamp(end_date).timestamp())
+
+        # Obtener datos históricos de Finnhub
+        res = finnhub_client.stock_candles(symbol, interval, start_timestamp, end_timestamp)
 
         # Convertir los datos a un DataFrame de pandas
-        df = pd.DataFrame([data])
-
-        # Procesar los datos (por ejemplo, convertir fechas, eliminar columnas innecesarias)
-        df['date'] = pd.to_datetime('now')  # Añadir una columna de fecha con la fecha actual
+        df = pd.DataFrame({
+            'date': pd.to_datetime(res['t'], unit='s'),
+            'open': res['o'],
+            'high': res['h'],
+            'low': res['l'],
+            'close': res['c'],
+            'volume': res['v']
+        })
         df.set_index('date', inplace=True)
 
         # Filtrar por rango de fechas
