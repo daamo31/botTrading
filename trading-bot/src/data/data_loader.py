@@ -3,7 +3,7 @@ import pandas as pd
 import datetime
 
 # Configurar el cliente de Finnhub
-api_key = "TU_API_KEY_DE_FINNHUB"
+api_key = "cu3a1p9r01qure9c8cbgcu3a1p9r01qure9c8cc0"
 finnhub_client = finnhub.Client(api_key=api_key)
 
 def load_data(symbol, interval, start_date, end_date):
