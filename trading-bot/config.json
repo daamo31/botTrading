@@ -1,6 +1,6 @@
 {
   "api_key": "cu3a1p9r01qure9c8cbgcu3a1p9r01qure9c8cc0",
-  "api_secret": "cu3a1p9r01qure9c8cbgcu3a1p9r01qure9c8cc0",
+  "api_secret": "cu3a1p9r01qure9c8cd0",
   "strategy": {
     "name": "MovingAverageStrategy",
     "parameters": {
