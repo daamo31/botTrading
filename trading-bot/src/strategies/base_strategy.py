@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     # Cargar datos de ejemplo
     data = pd.DataFrame({
-        'date': pd.date_range(start='1/1/2020', periods=200),
+        'date': pd.date_range(start='1/1/2024', periods=200),
         'close': np.random.randn(200).cumsum()
     })
     data.set_index('date', inplace=True)
