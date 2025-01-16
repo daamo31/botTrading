@@ -1,3 +1,6 @@
+import pandas as pd
+import numpy as np
+
 class BaseStrategy:
     def __init__(self):
         pass
@@ -34,9 +37,6 @@ class MovingAverageStrategy(BaseStrategy):
 
 # Ejemplo de uso
 if __name__ == "__main__":
-    import pandas as pd
-    import numpy as np
-
     # Cargar datos de ejemplo
     data = pd.DataFrame({
         'date': pd.date_range(start='1/1/2024', periods=200),

@@ -1,60 +1,58 @@
 import pandas as pd
+import logging
 
-def process_large_csv(file_path, chunksize=100000):
+# Configuración de los logs
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
+def load_and_process_data(file_path, chunksize=100000):
     try:
-        print(f"Cargando y procesando datos desde {file_path} en bloques de {chunksize} filas...")
-        
-        # Crear un DataFrame vacío para almacenar los resultados procesados
-        all_data = pd.DataFrame()
+        logger.info(f"Cargando y procesando datos desde {file_path} en bloques de {chunksize} filas...")
 
-        # Leer el archivo CSV en bloques (chunks)
+        # DataFrame final para almacenar los resultados procesados
+        all_data = pd.DataFrame()
+        error_count = 0  # Contador de filas con errores
+
+        # Leer el archivo CSV en bloques
         for chunk in pd.read_csv(
             file_path,
-            header=None,
-            names=["DateTime", "Details"],
-            dtype={0: str, 1: str},  # Forzar lectura como texto
-            chunksize=chunksize,  # Tamaño del bloque
-            low_memory=False  # Evitar advertencias de memoria
+            header=0,  # Asumimos que el archivo CSV tiene encabezados
+            names=["DateTime", "Bid", "Ask", "Volume"],
+            dtype={"DateTime": str, "Bid": float, "Ask": float, "Volume": int},  # Especificar tipos de datos
+            chunksize=chunksize,
+            low_memory=False
         ):
-            # Separar la columna 'Details' en 'Time', 'Bid', 'Ask', y 'Volume'
-            chunk[['Time', 'Bid', 'Ask', 'Volume']] = chunk['Details'].str.split(',', expand=True)
+            logger.info("Procesando un nuevo bloque...")
 
-            # Combinar la fecha y la hora en una sola columna 'DateTime'
-            chunk['DateTime'] = pd.to_datetime(
-                chunk['DateTime'] + " " + chunk['Time'],
-                format='%Y%m%d %H:%M:%S.%f',
-                errors='coerce'
-            )
+            # Convertir la columna 'DateTime' a tipo datetime
+            chunk['DateTime'] = pd.to_datetime(chunk['DateTime'], format='%Y%m%d %H:%M:%S.%f', errors='coerce')
 
-            # Convertir 'Bid', 'Ask', y 'Volume' a tipo numérico
-            chunk['Bid'] = pd.to_numeric(chunk['Bid'], errors='coerce')
-            chunk['Ask'] = pd.to_numeric(chunk['Ask'], errors='coerce')
-            chunk['Volume'] = pd.to_numeric(chunk['Volume'], errors='coerce')
+            # Filtrar filas con valores inválidos o NaN
+            chunk = chunk.dropna()
 
-            # Eliminar columnas no necesarias y filas con valores NaN
-            chunk = chunk[['DateTime', 'Bid', 'Ask', 'Volume']].dropna()
-
-            # Agregar el bloque procesado al DataFrame final
+            # Concatenar el bloque procesado al DataFrame final
             all_data = pd.concat([all_data, chunk], ignore_index=True)
 
-        # Configurar 'DateTime' como índice
+        # Configurar la columna 'DateTime' como índice
         all_data.set_index('DateTime', inplace=True)
 
-        print("Datos cargados y procesados correctamente:")
-        print(all_data.head())
-
+        logger.info("Datos cargados y procesados correctamente.")
+        logger.info(f"Total de filas con errores: {error_count}")
         return all_data
 
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error(f"Error al procesar los datos: {e}")
         return None
+
 
 # Ruta al archivo CSV
 file_path = '/Users/daniel/Desktop/bot/trading-bot/src/data/data.csv'
 
-# Procesar el archivo en bloques
-processed_data = process_large_csv(file_path, chunksize=500)  # Bloques de 500,000 filas
+# Procesar el archivo
+processed_data = load_and_process_data(file_path, chunksize=100000)
 
-# Verificar los resultados
 if processed_data is not None:
-    print(processed_data.info())
+    logger.info(processed_data.info())
+    print(processed_data.head())
+else:
+    logger.error("No se generó ningún DataFrame procesado.")
