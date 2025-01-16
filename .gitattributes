@@ -1,0 +1,2 @@
+trading-bot/notebooks/errores_formato.csv filter=lfs diff=lfs merge=lfs -text
+trading-bot/src/data/data.csv filter=lfs diff=lfs merge=lfs -text
