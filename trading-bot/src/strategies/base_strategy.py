@@ -21,8 +21,8 @@ class MovingAverageStrategy(BaseStrategy):
         market_data['long_mavg'] = market_data['close'].rolling(window=self.long_window, min_periods=1).mean()
 
         market_data['signal'] = 0
-        market_data['signal'][self.short_window:] = \
-            np.where(market_data['short_mavg'][self.short_window:] > market_data['long_mavg'][self.short_window:], 1, 0)
+        market_data.iloc[self.short_window:, market_data.columns.get_loc('signal')] = \
+            np.where(market_data['short_mavg'].iloc[self.short_window:] > market_data['long_mavg'].iloc[self.short_window:], 1, 0)
         market_data['positions'] = market_data['signal'].diff()
 
         return market_data
