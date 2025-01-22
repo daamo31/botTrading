@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 class BaseStrategy:
     def __init__(self):
@@ -11,20 +12,19 @@ class BaseStrategy:
     def get_signal(self, market_data):
         raise NotImplementedError("Este método debe ser implementado por estrategias específicas.")
 
-class MovingAverageStrategy(BaseStrategy):
-    def __init__(self, short_window=40, long_window=100):
-        self.short_window = short_window
-        self.long_window = long_window
+class ThresholdStrategy(BaseStrategy):
+    def __init__(self, buy_threshold=1.06, sell_threshold=1.11, close_buy_threshold=1.10, close_sell_threshold=1.05):
+        self.buy_threshold = buy_threshold
+        self.sell_threshold = sell_threshold
+        self.close_buy_threshold = close_buy_threshold
+        self.close_sell_threshold = close_sell_threshold
 
     def get_signal(self, market_data):
-        market_data['short_mavg'] = market_data['close'].rolling(window=self.short_window, min_periods=1).mean()
-        market_data['long_mavg'] = market_data['close'].rolling(window=self.long_window, min_periods=1).mean()
-
         market_data['signal'] = 0
-        market_data.iloc[self.short_window:, market_data.columns.get_loc('signal')] = \
-            np.where(market_data['short_mavg'].iloc[self.short_window:] > market_data['long_mavg'].iloc[self.short_window:], 1, 0)
-        market_data['positions'] = market_data['signal'].diff()
-
+        market_data['buy_signal'] = (market_data['close'] <= self.buy_threshold).astype(int)
+        market_data['sell_signal'] = (market_data['close'] >= self.sell_threshold).astype(int)
+        market_data['close_buy_signal'] = (market_data['close'] >= self.close_buy_threshold).astype(int)
+        market_data['close_sell_signal'] = (market_data['close'] <= self.close_sell_threshold).astype(int)
         return market_data
 
     def execute_trade(self, signal):
@@ -35,19 +35,34 @@ class MovingAverageStrategy(BaseStrategy):
         else:
             print("Mantener posición")
 
-# Ejemplo de uso
-if __name__ == "__main__":
-    # Cargar datos de ejemplo
+def test_strategy():
+    # Generar datos de prueba
+    dates = pd.date_range(start='2024-01-01', periods=200, freq='D')
     data = pd.DataFrame({
-        'date': pd.date_range(start='1/1/2024', periods=200),
-        'close': np.random.randn(200).cumsum()
+        'date': dates,
+        'close': np.random.uniform(1.05, 1.12, size=200)  # Generar datos de cierre entre 1.05 y 1.12
     })
     data.set_index('date', inplace=True)
 
     # Crear una instancia de la estrategia y obtener señales
-    strategy = MovingAverageStrategy()
+    strategy = ThresholdStrategy()
     signals = strategy.get_signal(data)
 
-    # Ejecutar una operación basada en la última señal
-    last_signal = signals['positions'].iloc[-1]
-    strategy.execute_trade(last_signal)
+    # Mostrar todas las veces que se hubiese activado la compra
+    buy_signals = signals[signals['buy_signal'] == 1]
+    print("Señales de compra activadas:")
+    print(buy_signals)
+
+    # Visualizar los datos y las señales
+    plt.figure(figsize=(12, 6))
+    plt.plot(data.index, data['close'], label='Close Price')
+    plt.plot(buy_signals.index, buy_signals['close'], 'g^', markersize=10, label='Buy Signal')
+    plt.axhline(y=1.06, color='blue', linestyle='--', label='Buy Threshold')
+    plt.axhline(y=1.10, color='green', linestyle='--', label='Close Buy Threshold')
+    plt.axhline(y=1.11, color='red', linestyle='--', label='Sell Threshold')
+    plt.axhline(y=1.05, color='orange', linestyle='--', label='Close Sell Threshold')
+    plt.legend()
+    plt.show()
+
+if __name__ == "__main__":
+    test_strategy()
