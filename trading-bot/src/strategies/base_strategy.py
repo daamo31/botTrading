@@ -13,18 +13,14 @@ class BaseStrategy:
         raise NotImplementedError("Este método debe ser implementado por estrategias específicas.")
 
 class ThresholdStrategy(BaseStrategy):
-    def __init__(self, buy_threshold=1.06, sell_threshold=1.11, close_buy_threshold=1.10, close_sell_threshold=1.05):
+    def __init__(self, buy_threshold=1.06451, sell_threshold=1.7):
         self.buy_threshold = buy_threshold
         self.sell_threshold = sell_threshold
-        self.close_buy_threshold = close_buy_threshold
-        self.close_sell_threshold = close_sell_threshold
 
     def get_signal(self, market_data):
         market_data['signal'] = 0
-        market_data['buy_signal'] = (market_data['close'] <= self.buy_threshold).astype(int)
+        market_data['buy_signal'] = (market_data['close'] > self.buy_threshold).astype(int)
         market_data['sell_signal'] = (market_data['close'] >= self.sell_threshold).astype(int)
-        market_data['close_buy_signal'] = (market_data['close'] >= self.close_buy_threshold).astype(int)
-        market_data['close_sell_signal'] = (market_data['close'] <= self.close_sell_threshold).astype(int)
         return market_data
 
     def execute_trade(self, signal):
@@ -40,7 +36,7 @@ def test_strategy():
     dates = pd.date_range(start='2024-01-01', periods=200, freq='D')
     data = pd.DataFrame({
         'date': dates,
-        'close': np.random.uniform(1.05, 1.12, size=200)  # Generar datos de cierre entre 1.05 y 1.12
+        'close': np.random.uniform(1.09, 1.11, size=200)  # Generar datos de cierre entre 1.09 y 1.11
     })
     data.set_index('date', inplace=True)
 
@@ -57,10 +53,8 @@ def test_strategy():
     plt.figure(figsize=(12, 6))
     plt.plot(data.index, data['close'], label='Close Price')
     plt.plot(buy_signals.index, buy_signals['close'], 'g^', markersize=10, label='Buy Signal')
-    plt.axhline(y=1.06, color='blue', linestyle='--', label='Buy Threshold')
-    plt.axhline(y=1.10, color='green', linestyle='--', label='Close Buy Threshold')
-    plt.axhline(y=1.11, color='red', linestyle='--', label='Sell Threshold')
-    plt.axhline(y=1.05, color='orange', linestyle='--', label='Close Sell Threshold')
+    plt.axhline(y=1.09451, color='blue', linestyle='--', label='Buy Threshold')
+    plt.axhline(y=1.10, color='red', linestyle='--', label='Sell Threshold')
     plt.legend()
     plt.show()
 
