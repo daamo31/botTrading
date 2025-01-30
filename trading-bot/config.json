@@ -1,11 +1,10 @@
 {
-  "api_key": "L4CKR38CSCKDVNNP",
-  "api_secret":"L4CKR38CSCKDVNNP",
+  
   "strategy": {
-    "name": "MovingAverageStrategy",
+    "name": "ThresholdStrategy",
     "parameters": {
-      "short_window": 40,
-      "long_window": 100
+      "buy_threshold": 1.06451,
+      "sell_threshold": 1.075
     }
   },
   "trading": {

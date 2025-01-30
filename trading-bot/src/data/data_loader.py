@@ -1,11 +1,12 @@
 import pandas as pd
 import logging
+import os
 
 # Configuración de los logs
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-def load_and_process_data(file_path, chunksize=100000):
+def load_and_process_data(file_path, chunksize=10000):
     try:
         logger.info(f"Cargando y procesando datos desde {file_path} en bloques de {chunksize} filas...")
 
@@ -36,6 +37,16 @@ def load_and_process_data(file_path, chunksize=100000):
         # Configurar la columna 'DateTime' como índice
         all_data.set_index('DateTime', inplace=True)
 
+        # Agregar la columna 'close' si no existe
+        if 'close' not in all_data.columns:
+            logger.info("Agregando columna 'close' como el promedio de 'Bid' y 'Ask'")
+            all_data['close'] = (all_data['Bid'] + all_data['Ask']) / 2
+
+        # Guardar el DataFrame procesado en un archivo CSV
+        processed_file_path = file_path.replace('.csv', '_data_processed.csv')
+        all_data.to_csv(processed_file_path)
+        logger.info(f"Datos procesados guardados en {processed_file_path}")
+
         logger.info("Datos cargados y procesados correctamente.")
         logger.info(f"Total de filas con errores: {error_count}")
         return all_data
@@ -43,16 +54,3 @@ def load_and_process_data(file_path, chunksize=100000):
     except Exception as e:
         logger.error(f"Error al procesar los datos: {e}")
         return None
-
-
-# Ruta al archivo CSV
-file_path = '/Users/daniel/Desktop/bot/trading-bot/src/data/data.csv'
-
-# Procesar el archivo
-processed_data = load_and_process_data(file_path, chunksize=100000)
-
-if processed_data is not None:
-    logger.info(processed_data.info())
-    print(processed_data.head())
-else:
-    logger.error("No se generó ningún DataFrame procesado.")
